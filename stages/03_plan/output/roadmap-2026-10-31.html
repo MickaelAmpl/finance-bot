@@ -1,0 +1,288 @@
+<title>Дорожная карта финбота</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Literata:opsz,wght@7..72,500;7..72,650&family=Golos+Text:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: same identity as plan page v2; one reading column, phase track, then a day-by-day rail for phase 1 */
+:root {
+  --bg: #f5f7f6;
+  --surface: #ffffff;
+  --ink: #16211e;
+  --muted: #56645f;
+  --line: #d9e1de;
+  --accent: #0e6a5b;
+  --accent-soft: #e3f0ec;
+  --you: #8a5a00; --you-bg: #fbf0d9;
+  --f-display: "Literata", Georgia, "Times New Roman", serif;
+  --f-body: "Golos Text", -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+  --f-mono: "JetBrains Mono", ui-monospace, Menlo, Consolas, monospace;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --bg: #0f1513; --surface: #161e1b; --ink: #e4ebe8; --muted: #9aa9a3; --line: #2a3632;
+  --accent: #5cc4ae; --accent-soft: #17302a; --you: #e5b85c; --you-bg: #33280f;
+  color-scheme: dark; } }
+:root[data-theme="dark"] {
+  --bg: #0f1513; --surface: #161e1b; --ink: #e4ebe8; --muted: #9aa9a3; --line: #2a3632;
+  --accent: #5cc4ae; --accent-soft: #17302a; --you: #e5b85c; --you-bg: #33280f;
+  color-scheme: dark; }
+body { background: var(--bg); color: var(--ink); font: 16px/1.6 var(--f-body); }
+.wrap { max-width: 880px; margin: 0 auto; padding-block: 40px 72px;
+  padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+header { display: grid; gap: 10px; padding-bottom: 24px; border-bottom: 1px solid var(--line); }
+.eyebrow { font: 500 12px/1.4 var(--f-mono); letter-spacing: .06em; text-transform: uppercase; color: var(--muted); display: flex; flex-wrap: wrap; gap: 6px 14px; }
+.eyebrow b { color: var(--accent); font-weight: 500; }
+h1 { font: 650 clamp(28px, 5vw, 40px)/1.15 var(--f-display); margin: 0; text-wrap: balance; }
+.lead { margin: 0; max-width: 68ch; }
+section { margin-top: 44px; display: grid; gap: 14px; min-width: 0; }
+section > p { margin: 0; max-width: 72ch; }
+h2 { font: 650 24px/1.25 var(--f-display); margin: 0; text-wrap: balance; }
+.muted { color: var(--muted); font-size: 14px; }
+
+/* phase track */
+.track { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+@media (max-width: 760px) { .track { grid-template-columns: 1fr; } }
+.phase { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 16px 18px; display: grid; gap: 6px; align-content: start; min-width: 0; }
+.phase.now { border-color: var(--accent); box-shadow: inset 0 3px 0 var(--accent); }
+.phase .when { font: 500 12px/1.4 var(--f-mono); color: var(--accent); }
+.phase h3 { margin: 0; font: 650 18px/1.3 var(--f-display); }
+.phase p { margin: 0; font-size: 15px; }
+
+/* the four steps every phase goes through */
+.steps { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+.steps li { background: var(--surface); border: 1px solid var(--line); border-radius: 8px; padding: 8px 12px; font-weight: 500; }
+.steps .gate { background: none; border: 0; padding: 0 2px; font: 500 12px/1.3 var(--f-mono); color: var(--you); }
+
+/* day rail */
+.rail { list-style: none; margin: 0; padding: 0; display: grid; gap: 0; }
+.day { display: grid; grid-template-columns: 104px minmax(0, 1fr); gap: 16px; padding: 18px 0; border-top: 1px solid var(--line); }
+.day:last-child { border-bottom: 1px solid var(--line); }
+.date { font: 500 14px/1.4 var(--f-mono); font-variant-numeric: tabular-nums; display: grid; gap: 6px; align-content: start; }
+.date .dow { color: var(--muted); font-size: 12px; letter-spacing: .06em; text-transform: uppercase; }
+.body { display: grid; gap: 8px; min-width: 0; }
+.who { display: flex; flex-wrap: wrap; gap: 6px; }
+.chip { font: 500 12px/1.3 var(--f-mono); padding: 3px 8px; border-radius: 999px; background: var(--accent-soft); color: var(--accent); }
+.chip.you { background: var(--you-bg); color: var(--you); }
+.chip.done { background: var(--accent); color: var(--surface); }
+.body h3 { margin: 0; font: 650 18px/1.35 var(--f-display); text-wrap: balance; }
+.body ul { margin: 0; padding-left: 1.2em; display: grid; gap: 5px; }
+.body ul .n { font: 500 12px/1 var(--f-mono); color: var(--muted); white-space: nowrap; }
+.check { font-size: 14px; color: var(--muted); margin: 0; }
+.gateline { justify-self: start; font-size: 14px; border-radius: 8px; padding: 6px 10px; background: var(--you-bg); color: var(--ink); }
+.gateline b { color: var(--you); font-weight: 600; }
+.day.reserve { color: var(--muted); }
+@media (max-width: 560px) {
+  .day { grid-template-columns: 1fr; gap: 8px; }
+  .date { grid-auto-flow: column; justify-content: start; gap: 10px; align-items: baseline; }
+}
+
+/* phase 2 table */
+.tbl { overflow-x: auto; border: 1px solid var(--line); border-radius: 10px; background: var(--surface); }
+table { border-collapse: collapse; width: 100%; font-size: 15px; line-height: 1.45; font-variant-numeric: tabular-nums; }
+th, td { text-align: left; vertical-align: top; padding: 10px 12px; border-bottom: 1px solid var(--line); }
+th { font: 500 11px/1.4 var(--f-mono); letter-spacing: .05em; text-transform: uppercase; color: var(--muted); background: var(--bg); }
+td:first-child { font: 500 14px/1.45 var(--f-mono); white-space: nowrap; }
+tr:last-child td { border-bottom: 0; }
+
+/* what Misha does */
+.asks { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+@media (max-width: 760px) { .asks { grid-template-columns: 1fr; } }
+.ask { background: var(--you-bg); border-radius: 10px; padding: 14px 16px; display: grid; gap: 6px; align-content: start; min-width: 0; }
+.ask .when { font: 500 12px/1.4 var(--f-mono); color: var(--you); }
+.ask ul { margin: 0; padding-left: 1.2em; display: grid; gap: 4px; font-size: 15px; }
+code { font: 13px var(--f-mono); background: var(--accent-soft); padding: 1px 5px; border-radius: 4px; overflow-wrap: anywhere; }
+footer { margin-top: 44px; font-size: 14px; color: var(--muted); display: grid; gap: 4px; }
+</style>
+
+<div class="wrap">
+  <header>
+    <div class="eyebrow"><b>finance-bot</b><span>этап 03 · план</span><span>утверждено 31.10</span><span>31.10.2026</span></div>
+    <h1>Дорожная карта</h1>
+    <p class="lead">Личный учёт заработает в пятницу 6.11 вечером. Группы с друзьями - 13.11. Мини-апп - не раньше 16.11.</p>
+  </header>
+
+  <section>
+    <h2>Три фазы</h2>
+    <div class="track">
+      <div class="phase now">
+        <div class="when">2.11 - 6.11</div>
+        <h3>Фаза 1. Личный учёт</h3>
+        <p>Пишешь боту «25 coffee», он сохраняет и раскладывает по категориям. Копилки, курсы валют, отчёт за месяц, сводка 1-го числа.</p>
+      </div>
+      <div class="phase">
+        <div class="when">9.11 - 13.11</div>
+        <h3>Фаза 2. Группы</h3>
+        <p>Бот в чате с друзьями: кто сколько заплатил, кто кому должен, разные доли. Отдельно от личного учёта.</p>
+      </div>
+      <div class="phase">
+        <div class="when">не раньше 16.11</div>
+        <h3>Фаза 3. Мини-апп</h3>
+        <p>Графики по категориям и месяцам, прогресс копилок, форма для сложных делёжек. Когда накопятся 2-3 недели записей.</p>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <h2>Как проходит каждая фаза</h2>
+    <ol class="steps">
+      <li>План</li><li class="gate">твоё «да» →</li>
+      <li>Разработка</li><li class="gate">тесты зелёные →</li>
+      <li>Проверка QA</li><li class="gate">вердикт QA →</li>
+      <li>Твоя приёмка</li><li class="gate">твой апрув →</li>
+      <li>Выпуск на сервер</li>
+    </ol>
+  </section>
+
+  <section>
+    <h2>Фаза 1 по дням</h2>
+    <p class="muted">Разработка идёт волнами: задачи одной волны агенты делают параллельно, следующая волна стартует, когда я принял предыдущую. Всего 15 задач в 7 волнах.</p>
+    <ol class="rail">
+      <li class="day">
+        <div class="date"><span class="dow">Сб</span><span>31.10</span></div>
+        <div class="body">
+          <div class="who"><span class="chip">я</span><span class="chip done">готово</span></div>
+          <h3>Подготовка</h3>
+          <ul>
+            <li>Папка проекта по методу Agentic Folder, спека для агентов, эта карта, план задач.</li>
+            <li>Поставлены 4 инструмента качества кода.</li>
+          </ul>
+        </div>
+      </li>
+      <li class="day">
+        <div class="date"><span class="dow">Вс</span><span>1.11</span></div>
+        <div class="body">
+          <div class="who"><span class="chip you">ты</span></div>
+          <h3>Утверждаешь план и создаёшь тестового бота</h3>
+          <ul>
+            <li>Читаешь эту карту и план задач.</li>
+            <li>Создаёшь в @BotFather тестового бота и вставляешь его токен в <code>app/.env</code> по моей инструкции.</li>
+            <li>Открываешь новую сессию Claude Code в папке <code>finance-bot</code>: только там включаются агенты, скиллы и защита.</li>
+          </ul>
+          <div class="gateline"><b>Дальше, если:</b> ты сказал «да» плану</div>
+        </div>
+      </li>
+      <li class="day">
+        <div class="date"><span class="dow">Пн</span><span>2.11</span></div>
+        <div class="body">
+          <div class="who"><span class="chip">агенты Haiku</span><span class="chip">я принимаю</span></div>
+          <h3>Волны 1-3. Основа</h3>
+          <ul>
+            <li>Каркас проекта и настройки. <span class="n">задача 1</span></li>
+            <li>Деньги: суммы в центах, формат «1,200.00», перевод в евро. База данных. <span class="n">задачи 2, 4</span></li>
+            <li>Разбор строки «25 coffee», категории и запоминание слов, курсы валют. <span class="n">задачи 3, 5, 6</span></li>
+          </ul>
+          <p class="check">Каждая задача: сначала тест, потом код; pyright ловит ошибки типов; после задачи я проверяю её по двум осям - правила и спека, без лишнего.</p>
+          <div class="gateline"><b>Дальше, если:</b> все тесты зелёные</div>
+        </div>
+      </li>
+      <li class="day">
+        <div class="date"><span class="dow">Вт</span><span>3.11</span></div>
+        <div class="body">
+          <div class="who"><span class="chip">агенты Haiku</span><span class="chip">я принимаю</span></div>
+          <h3>Волны 4-5. Записи и отчёты</h3>
+          <ul>
+            <li>Копилки с целями. Записи, отмена, история последних 10. <span class="n">задачи 7, 8</span></li>
+            <li>Отчёт за месяц, выгрузка CSV, все тексты ответов бота. <span class="n">задачи 9, 10, 11</span></li>
+          </ul>
+          <div class="gateline"><b>Дальше, если:</b> все тесты зелёные</div>
+        </div>
+      </li>
+      <li class="day">
+        <div class="date"><span class="dow">Ср</span><span>4.11</span></div>
+        <div class="body">
+          <div class="who"><span class="chip">агенты Haiku</span><span class="chip">я принимаю</span></div>
+          <h3>Волны 6-7. Сам бот и сервер</h3>
+          <ul>
+            <li>Бот: команды, кнопки, отвечает только тебе. Ежедневная задача: бэкап базы и сводка 1-го числа. <span class="n">задачи 12, 13</span></li>
+            <li>Запуск бота. Файлы для сервера: автозапуск, таймер на 09:00 по Вене, скрипт выпуска. <span class="n">задачи 14, 15</span></li>
+          </ul>
+          <div class="gateline"><b>Дальше, если:</b> все тесты зелёные</div>
+        </div>
+      </li>
+      <li class="day">
+        <div class="date"><span class="dow">Чт</span><span>5.11</span></div>
+        <div class="body">
+          <div class="who"><span class="chip">QA Sonnet</span><span class="chip">я</span></div>
+          <h3>Проверка всей фазы</h3>
+          <ul>
+            <li>Все 28 требований спеки и 5 рискованных мест: на каждое тест или команда как доказательство.</li>
+            <li>Ревью по двум осям, поиск ошибок, которые код молча проглатывает, дыр в тестах, лишнего кода, проверка безопасности.</li>
+            <li>Находки приходят тебе. Правим по твоему решению.</li>
+          </ul>
+          <div class="gateline"><b>Дальше, если:</b> QA пройден или ты принял список замечаний</div>
+        </div>
+      </li>
+      <li class="day">
+        <div class="date"><span class="dow">Пт</span><span>6.11</span></div>
+        <div class="body">
+          <div class="who"><span class="chip you">ты</span><span class="chip">я</span></div>
+          <h3>Приёмка и выпуск</h3>
+          <ul>
+            <li>Проходишь в Telegram с тестовым ботом чек-лист из 11 пунктов.</li>
+            <li>Даёшь апрув на выпуск. Создаёшь основного бота, токен на сервер по инструкции.</li>
+            <li>Я выпускаю на сервер и проверяю. С вечера пользуешься.</li>
+          </ul>
+          <div class="gateline"><b>Выпуск только после:</b> твоего апрува</div>
+        </div>
+      </li>
+      <li class="day reserve">
+        <div class="date"><span class="dow">Сб</span><span>7.11</span></div>
+        <div class="body">
+          <h3>Запасной день</h3>
+          <ul><li>Если QA найдёт что-то серьёзное.</li></ul>
+        </div>
+      </li>
+    </ol>
+  </section>
+
+  <section>
+    <h2>Фаза 2. Группы</h2>
+    <div class="tbl">
+      <table>
+        <thead><tr><th>Когда</th><th>Что</th></tr></thead>
+        <tbody>
+          <tr><td>9-10.11</td><td>Правки по первым дням использования. Спека групп и план задач - тебе на утверждение.</td></tr>
+          <tr><td>11-12.11</td><td>Разработка и проверка QA.</td></tr>
+          <tr><td>13.11</td><td>Приёмка в тестовой группе, твой апрув, выпуск.</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section>
+    <h2>Фаза 3. Мини-апп</h2>
+    <p>Не раньше 16.11. Сначала решаем, как дать мини-аппу HTTPS-адрес: домен на сервере или туннель. Потом спека, план, разработка. Сроки ставим после фазы 2.</p>
+  </section>
+
+  <section>
+    <h2>Что нужно от тебя</h2>
+    <div class="asks">
+      <div class="ask">
+        <div class="when">Вс 1.11</div>
+        <ul>
+          <li>«Да» плану или правки.</li>
+          <li>Тестовый бот в @BotFather.</li>
+          <li>Новая сессия в папке <code>finance-bot</code>.</li>
+        </ul>
+      </div>
+      <div class="ask">
+        <div class="when">Пт 6.11</div>
+        <ul>
+          <li>Приёмка по чек-листу.</li>
+          <li>Апрув выпуска.</li>
+          <li>Основной бот в @BotFather, токен на сервер по инструкции.</li>
+        </ul>
+      </div>
+      <div class="ask">
+        <div class="when">После недели использования</div>
+        <ul>
+          <li>Что неудобно, что добавить. Идёт в спеку фазы 2 или в бэклог.</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    <span>Источник: <code>stages/03_plan/output/roadmap-2026-10-31.md</code>. План задач для агентов: <code>phase1-implementation-plan-2026-10-31.md</code>.</span>
+  </footer>
+</div>

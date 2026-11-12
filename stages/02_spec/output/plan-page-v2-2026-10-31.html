@@ -1,0 +1,308 @@
+<title>Финансовый бот: план</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Literata:opsz,wght@7..72,500;7..72,650&family=Golos+Text:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: one reading column; phases as a horizontal track, chat mockups in mono, tables for stack and timeline */
+:root {
+  --bg: #f5f7f6;
+  --surface: #ffffff;
+  --ink: #16211e;
+  --muted: #56645f;
+  --line: #d9e1de;
+  --accent: #0e6a5b;
+  --accent-soft: #e3f0ec;
+  --chat: #eef3f1;
+  --warn: #8a5a00; --warn-bg: #fbf0d9;
+  --f-display: "Literata", Georgia, "Times New Roman", serif;
+  --f-body: "Golos Text", -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+  --f-mono: "JetBrains Mono", ui-monospace, Menlo, Consolas, monospace;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --bg: #0f1513; --surface: #161e1b; --ink: #e4ebe8; --muted: #9aa9a3; --line: #2a3632;
+  --accent: #5cc4ae; --accent-soft: #17302a; --chat: #1b2622; --warn: #e5b85c; --warn-bg: #33280f;
+  color-scheme: dark; } }
+:root[data-theme="dark"] {
+  --bg: #0f1513; --surface: #161e1b; --ink: #e4ebe8; --muted: #9aa9a3; --line: #2a3632;
+  --accent: #5cc4ae; --accent-soft: #17302a; --chat: #1b2622; --warn: #e5b85c; --warn-bg: #33280f;
+  color-scheme: dark; }
+body { background: var(--bg); color: var(--ink); font: 16px/1.6 var(--f-body); }
+.wrap { max-width: 880px; margin: 0 auto; padding-block: 40px 72px;
+  padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+header { display: grid; gap: 10px; padding-bottom: 24px; border-bottom: 1px solid var(--line); }
+.eyebrow { font: 500 12px/1.4 var(--f-mono); letter-spacing: .06em; text-transform: uppercase; color: var(--muted); display: flex; flex-wrap: wrap; gap: 6px 14px; }
+.eyebrow b { color: var(--accent); font-weight: 500; }
+h1 { font: 650 clamp(28px, 5vw, 40px)/1.15 var(--f-display); margin: 0; text-wrap: balance; }
+.lead { margin: 0; color: var(--muted); max-width: 68ch; }
+section { margin-top: 44px; display: grid; gap: 12px; min-width: 0; }
+section > p, section > ul, section > ol { margin: 0; max-width: 72ch; }
+h2 { font: 650 24px/1.25 var(--f-display); margin: 0; text-wrap: balance; }
+h3 { font: 600 16px/1.4 var(--f-body); margin: 10px 0 0; }
+.short { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; margin-top: 24px; }
+@media (max-width: 720px) { .short { grid-template-columns: 1fr; } }
+.tile { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 16px 18px; display: grid; gap: 6px; min-width: 0; }
+.tile .k { font: 500 11px/1.4 var(--f-mono); letter-spacing: .06em; text-transform: uppercase; color: var(--muted); }
+.tile p { margin: 0; }
+.track { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+@media (max-width: 760px) { .track { grid-template-columns: 1fr; } }
+.phase { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 16px 18px; display: grid; gap: 8px; align-content: start; min-width: 0; }
+.phase.now { border-color: var(--accent); box-shadow: inset 0 3px 0 var(--accent); }
+.phase .when { font: 500 12px/1.4 var(--f-mono); color: var(--accent); }
+.phase h3 { margin: 0; font: 650 18px/1.3 var(--f-display); }
+.phase ul { margin: 0; padding-left: 1.2em; display: grid; gap: 4px; font-size: 15px; }
+.chat { background: var(--chat); border-radius: 10px; padding: 14px 16px; font: 13.5px/1.6 var(--f-mono); overflow-x: auto; white-space: pre; min-width: 0; }
+.chat .me { color: var(--accent); }
+.chat .note { color: var(--muted); }
+.tbl { overflow-x: auto; border: 1px solid var(--line); border-radius: 10px; background: var(--surface); }
+table { border-collapse: collapse; width: 100%; font-size: 14px; line-height: 1.45; font-variant-numeric: tabular-nums; }
+th, td { text-align: left; vertical-align: top; padding: 10px 12px; border-bottom: 1px solid var(--line); min-width: 110px; }
+th { font: 500 11px/1.4 var(--f-mono); letter-spacing: .05em; text-transform: uppercase; color: var(--muted); background: var(--bg); }
+tr:last-child td { border-bottom: 0; }
+td:first-child { font-weight: 500; }
+code { font: 13px var(--f-mono); background: var(--accent-soft); padding: 1px 5px; border-radius: 4px; overflow-wrap: anywhere; }
+ol, ul { padding-left: 1.3em; display: grid; gap: 6px; }
+a { color: var(--accent); text-underline-offset: 2px; overflow-wrap: anywhere; }
+a:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 2px; }
+.callout { background: var(--warn-bg); color: var(--ink); border-radius: 10px; padding: 14px 16px; }
+.callout b { color: var(--warn); }
+.two { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+@media (max-width: 720px) { .two { grid-template-columns: 1fr; } }
+.questions li { padding-left: 4px; }
+.questions li b { display: block; }
+.muted { color: var(--muted); font-size: 14px; }
+</style>
+<div class="wrap">
+<header>
+  <div class="eyebrow"><b>План на утверждение · v2</b><span>31 октября 2026</span><span>Продакт-оунер: Claude</span><span>Заказчик: Миша</span></div>
+  <h1>Финансовый бот в Telegram: продукт, стек, команда</h1>
+  <p class="lead">Личный учёт расходов, доходов и накоплений одной строкой в чат, потом деление трат с друзьями в группе. Работает на твоём сервере VPS рядом с job-digest. Код до твоего «да» не пишется, каждый выпуск на сервер - только с твоего апрува.</p>
+</header>
+
+<div class="short">
+  <div class="tile"><span class="k">Что строим</span><p>Бот в Telegram. Пишешь <code>25 coffee</code>, он записывает. 1-го числа сам присылает сводку месяца с аналитикой.</p></div>
+  <div class="tile"><span class="k">Мини-апп</span><p>Не нужен для фаз 1-2. Нужен в фазе 3 для двух вещей, которые бот делает плохо: графики и сложное деление в группе.</p></div>
+  <div class="tile"><span class="k">Где и на чём</span><p>Твой сервер VPS, по той же схеме, что job-digest: Python, aiogram, база-файл SQLite. Дополнительно $0.</p></div>
+  <div class="tile"><span class="k">Когда пользоваться</span><p>Фаза 1 к пятнице 6 ноября (окно 5-8 ноября). Группы - неделя после. Мини-апп - после 2-3 недель реальных данных.</p></div>
+</div>
+
+<section>
+  <h2>Продукт по фазам</h2>
+  <div class="track">
+    <div class="phase now">
+      <span class="when">Фаза 1 · 2-6 ноября</span>
+      <h3>Личный учёт</h3>
+      <ul>
+        <li>Расход и доход одной строкой</li>
+        <li>Категория по слову, запоминается</li>
+        <li>EUR, USD, UAH; курс вводишь сам</li>
+        <li>Копилки: пополнил, снял, история</li>
+        <li>Сводка 1-го числа + CSV всех записей</li>
+      </ul>
+    </div>
+    <div class="phase">
+      <span class="when">Фаза 2 · 9-13 ноября</span>
+      <h3>Группы с друзьями</h3>
+      <ul>
+        <li>Бот в групповом чате</li>
+        <li>Кто платил, за что, на кого</li>
+        <li>Поровну, точными суммами или долями</li>
+        <li>Кто кому должен, минимум переводов</li>
+        <li>Отдельно от личного учёта</li>
+      </ul>
+    </div>
+    <div class="phase">
+      <span class="when">Фаза 3 · с 16 ноября</span>
+      <h3>Мини-апп</h3>
+      <ul>
+        <li>Графики по категориям и месяцам</li>
+        <li>Динамика доходов и расходов</li>
+        <li>Прогресс копилок</li>
+        <li>Форма сложного деления для группы</li>
+      </ul>
+    </div>
+  </div>
+  <p class="muted">Не делаем: банки, инвестиции, план против факта, бюджеты, ИИ-разбор текста, голос, фото чеков, несколько валют в одной группе, перенос старого Excel. Любое из этого можно добавить позже отдельной фазой.</p>
+</section>
+
+<section>
+  <h2>Фаза 1: как выглядит ввод</h2>
+  <p>Схема как у Cointry и beancounter: сначала сумма, потом слово. Плюс в начале - доход. Валюта по умолчанию EUR. Разбор строки - простые правила, без ИИ: бесплатно, мгновенно и данные никуда не уходят.</p>
+  <div class="chat"><span class="me">25 coffee</span>
+Saved: −25.00 EUR · coffee → Eating out      [Change category] [Undo]
+
+<span class="me">1200 uah taxi</span>
+Saved: −1,200.00 UAH (≈ −26.40 EUR at 0.0220) · taxi → Transport
+
+<span class="me">+3000 salary</span>
+Saved: +3,000.00 EUR · salary → Salary
+
+<span class="me">42 dm</span>
+New word "dm". Pick a category:   [Groceries] [Household] [Health] [Other]
+<span class="note">после выбора бот запоминает: dm → Groceries</span>
+
+<span class="me">save 200 emergency</span>
+Emergency pot: +200.00 EUR · total 1,400.00 EUR
+
+<span class="note">суммы на этой странице - пример интерфейса, не твои данные</span></div>
+  <div class="tbl"><table>
+    <thead><tr><th>Пишешь</th><th>Что происходит</th></tr></thead>
+    <tbody>
+      <tr><td><code>25 coffee</code>, <code>12,50 lunch</code>, <code>€25 coffee</code></td><td>Расход в EUR. Запятая и точка обе работают</td></tr>
+      <tr><td><code>25 usd book</code>, <code>1200 uah taxi</code></td><td>Расход в валюте; в EUR по последнему курсу, курс фиксируется в записи</td></tr>
+      <tr><td><code>+3000 salary</code></td><td>Доход</td></tr>
+      <tr><td><code>25 coffee yesterday</code>, <code>25 coffee 28.10</code></td><td>Запись задним числом</td></tr>
+      <tr><td><code>save 200 emergency</code>, <code>take 50 emergency</code></td><td>Пополнение и снятие копилки, с датой. Копилки не считаются расходом</td></tr>
+      <tr><td><code>/rate usd 0.92</code></td><td>Курс вручную. Если курса нет, бот попросит его и сохранит запись после</td></tr>
+      <tr><td><code>/undo</code>, <code>/last</code></td><td>Отменить последнюю; список последних 10 с кнопками правки</td></tr>
+      <tr><td><code>/month</code>, <code>/month 10</code></td><td>Отчёт за текущий или указанный месяц</td></tr>
+      <tr><td><code>/savings</code>, <code>/goal emergency 10000</code></td><td>Копилки, история пополнений, цель и прогресс</td></tr>
+      <tr><td><code>/export</code></td><td>CSV всех записей в чат: данные всегда у тебя</td></tr>
+    </tbody>
+  </table></div>
+  <h3>Сводка 1-го числа, 09:00 по Вене</h3>
+  <div class="chat">October 2026
+Income      3,000.00 EUR
+Spent       1,850.00 EUR   ▲ 6% vs Sep
+Saved         400.00 EUR
+Net           750.00 EUR
+
+Groceries     420.00  ███████████  23%
+Eating out    310.00  ████████     17%
+Transport     190.00  █████        10%
+...
+Top 5 expenses · Savings: Emergency 1,400 / 10,000 (14%)
+[Export CSV]
+
+<span class="note">пример формата, цифры условные</span></div>
+</section>
+
+<section>
+  <h2>Фаза 2: группа с друзьями</h2>
+  <p>Бот добавляется в чат. Каждый участник один раз пишет <code>/join</code>: список участников группы бот получить не может, это ограничение Telegram. По умолчанию бот видит только команды, обычную переписку друзей он не читает. Групповые траты живут отдельно и в личный учёт не попадают.</p>
+  <div class="tbl"><table>
+    <thead><tr><th>Команда</th><th>Смысл</th></tr></thead>
+    <tbody>
+      <tr><td><code>/paid 60 dinner</code></td><td>Я заплатил 60, поровну на всех участников</td></tr>
+      <tr><td><code>/paid 60 dinner @anna @max</code></td><td>Поровну между мной и перечисленными</td></tr>
+      <tr><td><code>/paid 60 dinner @anna=20 @max=40</code></td><td>Точные суммы на каждого</td></tr>
+      <tr><td><code>/paid 60 dinner @anna*2 @max</code></td><td>Доли: Аня за двоих</td></tr>
+      <tr><td><code>/paid 60 dinner by @anna</code></td><td>Платила Аня, записываю я</td></tr>
+      <tr><td><code>/balance</code></td><td>Кто кому сколько должен, минимальным числом переводов</td></tr>
+      <tr><td><code>/settle @anna 20</code></td><td>Я вернул Ане 20</td></tr>
+    </tbody>
+  </table></div>
+  <p class="muted">Одна валюта на группу задаётся при подключении. Копейки при делении раскладываются детерминированно: сумма долей всегда равна сумме чека.</p>
+</section>
+
+<section>
+  <h2>Стек</h2>
+  <div class="tbl"><table>
+    <thead><tr><th>Слой</th><th>Выбор</th><th>Почему</th></tr></thead>
+    <tbody>
+      <tr><td>Сервер</td><td>Твой VPS (the server), своя папка <code>/opt/finance-bot</code></td><td>Уже оплачен; отдельно от job-digest: свой бот, своя база, свой сервис</td></tr>
+      <tr><td>Язык</td><td>Python 3.12</td><td>Уже стоит на сервере, на нём работают job-digest и another project</td></tr>
+      <tr><td>Бот</td><td>aiogram 3.31</td><td>Зрелая библиотека для Telegram-ботов: кнопки, команды, тесты без живого Telegram</td></tr>
+      <tr><td>Связь с Telegram</td><td>Long polling, как у job-digest</td><td>Бот сам забирает сообщения; не нужен домен и HTTPS</td></tr>
+      <tr><td>База</td><td>SQLite, один файл</td><td>Хватит на годы записей; бэкап - копия файла</td></tr>
+      <tr><td>Сводка 1-го числа</td><td>Задание по расписанию на сервере</td><td>Тот же механизм, что утренний дайджест job-digest</td></tr>
+      <tr><td>Бэкапы</td><td>Каждую ночь, 14 копий + CSV в сводке</td><td>Если сервер пропадёт, копия всех записей у тебя в чате раз в месяц</td></tr>
+      <tr><td>Выпуск на сервер</td><td>Скрипт деплоя как у job-digest</td><td>Сначала бэкап, проверка, строка отката; запуск только с твоего апрува</td></tr>
+      <tr><td>Тесты</td><td>pytest</td><td>Разбор строки, деньги, команды проверяются автоматически до выпуска</td></tr>
+      <tr><td>Деньги в коде</td><td>Целые центы</td><td>Никаких дробных чисел для сумм: копейки не теряются</td></tr>
+      <tr><td>Мини-апп (фаза 3)</td><td>React + @tma.js/sdk-react</td><td>Нужен будет HTTPS-адрес: домен на твоём сервере или Cloudflare Tunnel. Решим в фазе 3</td></tr>
+    </tbody>
+  </table></div>
+  <div class="callout"><b>Известные ловушки сервера, уже пойманные на job-digest.</b> Связь с Telegram по IPv6 с этого сервера зависает - бот работает только через IPv4. Копирование при выпуске сбрасывает права на запуск скриптов - скрипт деплоя их проверяет. Оба правила сразу пишем в правила проекта.</div>
+</section>
+
+<section>
+  <h2>Команда и процесс</h2>
+  <div class="tbl"><table>
+    <thead><tr><th>Роль</th><th>Кто</th><th>Что делает</th></tr></thead>
+    <tbody>
+      <tr><td>Продакт-оунер</td><td>Claude Opus (я)</td><td>Спека задач, раздача, приёмка; выпуск на сервер только с твоего апрува</td></tr>
+      <tr><td>Разработчики</td><td>Haiku</td><td>По одной задаче на агента, сначала тест, потом код, строго свои файлы</td></tr>
+      <tr><td>QA</td><td>Sonnet</td><td>Прогон тестов, ревью кода, сценарии по чек-листу, журнал находок. Все находки идут тебе</td></tr>
+      <tr><td>Заказчик</td><td>Ты</td><td>Проверка в Telegram по чек-листу фазы: «ок» или правки</td></tr>
+    </tbody>
+  </table></div>
+  <p>В проекте лежат: <code>CLAUDE.md</code> с правилами (английский интерфейс, деньги в центах, ограничения Telegram, ловушки сервера, тест до кода), файлы ролей <code>developer.md</code> и <code>qa.md</code> по образцу job-digest, спека, план задач и журнал QA. Новая сессия подхватывает работу без пересказа.</p>
+</section>
+
+<section>
+  <h2>Скиллы и инструменты</h2>
+  <div class="two">
+    <div class="tile"><span class="k">Процесс, уже установлены</span>
+      <p><code>writing-plans</code> пошаговый план · <code>subagent-driven-development</code> раздача задач · <code>test-driven-development</code> · <code>systematic-debugging</code> · <code>verification-before-completion</code> · <code>requesting-code-review</code> для QA · <code>using-git-worktrees</code> чтобы агенты не мешали друг другу</p></div>
+    <div class="tile"><span class="k">Добавить</span>
+      <p><b>security-guidance</b> от Anthropic, с твоего ок. В фазе 3: <b>Playwright</b> и <code>webapp-testing</code> для проверки мини-аппа, <code>frontend-design</code> для его интерфейса</p></div>
+  </div>
+  <div class="tbl"><table>
+    <thead><tr><th>Плагин</th><th>Что это простыми словами</th><th>Цена</th><th>Рекомендация</th></tr></thead>
+    <tbody>
+      <tr><td>security-guidance</td><td>Охранник кода от Anthropic. Пока агенты пишут, ловит опасное: токен в коде, дыры в обработке данных. После каждого шага и перед каждым сохранением версии отдельная модель проверяет изменения</td><td>Каждая проверка тратит твой лимит Claude; модель можно поставить дешевле</td><td>Ставить: тут финансы и токен бота</td></tr>
+      <tr><td>Context7</td><td>Справочник для агентов: подтягивает свежую документацию библиотек вместо устаревшей памяти. Внешний сервис Upstash, нужен твой вход. Туда уходят только вопросы о библиотеках</td><td>Вход в сервис</td><td>Не сейчас: агенты читают документацию aiogram напрямую</td></tr>
+    </tbody>
+  </table></div>
+  <p class="muted">Не берём: MCP с доступом к твоему личному аккаунту Telegram (полный доступ к переписке), непроверенные скиллы сообщества.</p>
+</section>
+
+<section>
+  <h2>Где хранить код: только Мак или ещё GitHub</h2>
+  <div class="tbl"><table>
+    <thead><tr><th>Вариант</th><th>За</th><th>Против</th></tr></thead>
+    <tbody>
+      <tr><td>Папка на Маке + git</td><td>Ничего не уходит наружу. История каждой правки и откат. Агенты работают в отдельных копиях. Как job-digest, только с историей</td><td>Код только на Маке и на сервере: умер Мак - история пропала, на сервере остаётся только текущая версия</td></tr>
+      <tr><td>+ закрытый репозиторий GitHub</td><td>Копия кода и истории вне Мака. Можно продолжить работу из облачной сессии или Codex. Автотесты на каждую правку. Твой GitHub уже подключён</td><td>Надо следить, чтобы токен и данные не попали в репозиторий (защищает .gitignore и security-guidance). Ещё одна система</td></tr>
+    </tbody>
+  </table></div>
+  <p><b>Рекомендация:</b> сейчас папка <code>~/Desktop/Projects/finance-bot</code> с git с первого дня. Закрытый репозиторий GitHub - после приёмки фазы 1, когда код уже стоит беречь. Данные (база) в репозиторий не попадают никогда.</p>
+</section>
+
+<section>
+  <h2>Сроки и задачи</h2>
+  <div class="tbl"><table>
+    <thead><tr><th>Когда</th><th>Кто</th><th>Что</th></tr></thead>
+    <tbody>
+      <tr><td>31.10-1.11</td><td>Ты</td><td>Утвердить этот документ</td></tr>
+      <tr><td>1.11</td><td>Я</td><td>Пошаговый план задач для агентов; папка проекта, git, правила и роли</td></tr>
+      <tr><td>1-2.11, 5 минут</td><td>Ты</td><td>Создать бота в @BotFather (имя рабочее, поменять можно); токен вставляешь сам на сервер по моей инструкции</td></tr>
+      <tr><td>2-4.11</td><td>Haiku + Sonnet</td><td>Каркас, разбор строки, записи, категории, курсы, /undo, /last, /month</td></tr>
+      <tr><td>4-5.11</td><td>Haiku + Sonnet</td><td>Копилки и цели, сводка по расписанию, экспорт CSV, бэкапы</td></tr>
+      <tr><td>5-6.11</td><td>Ты</td><td>Приёмка фазы 1 по чек-листу; после твоего апрува - выпуск на сервер, начинаешь пользоваться</td></tr>
+      <tr><td>9-13.11</td><td>Все</td><td>Правки по первой неделе; фаза 2 группы и её приёмка</td></tr>
+      <tr><td>с 16.11</td><td>Все</td><td>Фаза 3 мини-апп, отдельный план после 2-3 недель данных</td></tr>
+    </tbody>
+  </table></div>
+  <h3>Чек-лист приёмки фазы 1</h3>
+  <ol>
+    <li>10 разных строк из таблицы ввода сохраняются правильно, включая UAH и запись задним числом.</li>
+    <li>Новое слово спрашивает категорию один раз, второй раз подставляется само.</li>
+    <li><code>/undo</code> и правка категории работают.</li>
+    <li><code>/month</code> сходится с ручным подсчётом по <code>/export</code>.</li>
+    <li>Копилка: пополнение, снятие, цель, история с датами.</li>
+    <li>Тестовая сводка приходит по расписанию; чужой аккаунт бот игнорирует.</li>
+    <li>Ночной бэкап лежит на сервере, job-digest работает как раньше.</li>
+  </ol>
+</section>
+
+<section>
+  <h2>Риски</h2>
+  <ul>
+    <li>Сервер не оплачен - бот молчит. Записи на сервере остаются, копия всех записей - CSV в сводке раз в месяц.</li>
+    <li>Финансы и job-digest на одном сервере. Разделяем папки, базы, токены и сервисы; права на файл базы только у владельца.</li>
+    <li>В группе бот видит только команды. Если захочется писать без <code>/paid</code>, придётся дать ему читать весь чат.</li>
+    <li>Утечка токена бота: перевыпуск в @BotFather за минуту, инструкция будет в проекте.</li>
+  </ul>
+</section>
+
+<section>
+  <h2>Что нужно от тебя</h2>
+  <ol class="questions">
+    <li><b>Утверждаешь план?</b> Фазы, стек на твоём сервере, команда, сроки.</li>
+    <li><b>Код: папка с git сейчас, GitHub после фазы 1 - ок?</b> Или сразу GitHub.</li>
+    <li><b>Ставим security-guidance?</b> Это меняет настройки Claude Code и тратит лимит на проверки.</li>
+  </ol>
+</section>
+</div>

@@ -1,0 +1,265 @@
+<title>Ресерч финансового мини-аппа</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Literata:opsz,wght@7..72,500;7..72,650&family=Golos+Text:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: one reading column like a ledger page; verdicts as three entries up top, sections below, sources in small print */
+:root {
+  --bg: #f5f7f6;
+  --surface: #ffffff;
+  --ink: #16211e;
+  --muted: #56645f;
+  --line: #d9e1de;
+  --accent: #0e6a5b;
+  --accent-soft: #e3f0ec;
+  --hi: #1f7a4d; --hi-bg: #e4f3ea;
+  --mid: #8a5a00; --mid-bg: #fbf0d9;
+  --lo: #a2302a; --lo-bg: #f8e3e1;
+  --f-display: "Literata", Georgia, "Times New Roman", serif;
+  --f-body: "Golos Text", -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+  --f-mono: "JetBrains Mono", ui-monospace, Menlo, Consolas, monospace;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --bg: #0f1513; --surface: #161e1b; --ink: #e4ebe8; --muted: #9aa9a3; --line: #2a3632;
+  --accent: #5cc4ae; --accent-soft: #17302a;
+  --hi: #6fd39c; --hi-bg: #16301f; --mid: #e5b85c; --mid-bg: #33280f; --lo: #f08a82; --lo-bg: #3a1a18;
+  color-scheme: dark; } }
+:root[data-theme="dark"] {
+  --bg: #0f1513; --surface: #161e1b; --ink: #e4ebe8; --muted: #9aa9a3; --line: #2a3632;
+  --accent: #5cc4ae; --accent-soft: #17302a;
+  --hi: #6fd39c; --hi-bg: #16301f; --mid: #e5b85c; --mid-bg: #33280f; --lo: #f08a82; --lo-bg: #3a1a18;
+  color-scheme: dark; }
+body { background: var(--bg); color: var(--ink); font: 16px/1.6 var(--f-body); }
+.wrap { max-width: 860px; margin: 0 auto; padding-block: 40px 72px;
+  padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+header { display: grid; gap: 10px; padding-bottom: 24px; border-bottom: 1px solid var(--line); }
+.eyebrow { font: 500 12px/1.4 var(--f-mono); letter-spacing: .06em; text-transform: uppercase; color: var(--muted); display: flex; flex-wrap: wrap; gap: 6px 14px; }
+.eyebrow b { color: var(--accent); font-weight: 500; }
+h1 { font: 650 clamp(28px, 5vw, 40px)/1.15 var(--f-display); margin: 0; text-wrap: balance; }
+.lead { margin: 0; color: var(--muted); max-width: 68ch; }
+.verdicts { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; margin: 28px 0 8px; }
+@media (max-width: 760px) { .verdicts { grid-template-columns: 1fr; } }
+.verdict { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 18px; display: grid; grid-template-rows: auto auto 1fr auto; gap: 8px; min-width: 0; }
+.vnum { font: 500 13px/1 var(--f-mono); color: var(--accent); }
+.verdict h3 { font: 650 18px/1.3 var(--f-display); margin: 0; text-wrap: balance; }
+.vans { margin: 0; }
+.vchg { margin: 0; font-size: 14px; color: var(--muted); border-top: 1px dashed var(--line); padding-top: 10px; }
+.vchg span { display: block; font: 500 11px/1.6 var(--f-mono); letter-spacing: .06em; text-transform: uppercase; color: var(--muted); }
+.summary { margin: 20px 0 0; padding: 16px 18px; background: var(--accent-soft); border-radius: 10px; max-width: none; }
+section { margin-top: 44px; display: grid; gap: 12px; min-width: 0; }
+section > p, section > ul, section > ol { margin: 0; max-width: 70ch; }
+h2 { font: 650 24px/1.25 var(--f-display); margin: 0; text-wrap: balance; }
+h3 { font: 600 15px/1.4 var(--f-body); margin: 12px 0 0; }
+.rel { justify-self: start; margin: 0; font-size: 13px; line-height: 1.5; padding: 6px 10px; border-radius: 6px; max-width: 70ch; }
+.rel strong { font-weight: 600; }
+.rel-hi { background: var(--hi-bg); color: var(--hi); }
+.rel-mid { background: var(--mid-bg); color: var(--mid); }
+.rel-lo { background: var(--lo-bg); color: var(--lo); }
+.tbl { overflow-x: auto; border: 1px solid var(--line); border-radius: 10px; background: var(--surface); }
+table { border-collapse: collapse; width: 100%; font-size: 14px; line-height: 1.45; font-variant-numeric: tabular-nums; }
+th, td { text-align: left; vertical-align: top; padding: 10px 12px; border-bottom: 1px solid var(--line); min-width: 120px; }
+th { font: 500 11px/1.4 var(--f-mono); letter-spacing: .05em; text-transform: uppercase; color: var(--muted); background: var(--bg); }
+tr:last-child td { border-bottom: 0; }
+td:first-child { font-weight: 500; }
+ol, ul { padding-left: 1.3em; display: grid; gap: 6px; }
+a { color: var(--accent); text-underline-offset: 2px; overflow-wrap: anywhere; }
+a:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 2px; }
+code { font: 13px var(--f-mono); background: var(--accent-soft); padding: 1px 5px; border-radius: 4px; overflow-wrap: anywhere; }
+.appendix { font-size: 13px; color: var(--muted); border-top: 1px solid var(--line); padding-top: 28px; }
+.appendix h2 { font-size: 18px; color: var(--ink); }
+.appendix h3 { color: var(--ink); }
+.appendix ol { gap: 2px; }
+.group { font: 500 12px/1.4 var(--f-mono); letter-spacing: .05em; text-transform: uppercase; margin-top: 8px !important; }
+</style>
+<div class="wrap">
+<header>
+  <div class="eyebrow"><b>Ресерч</b><span>31 октября 2026</span><span>6 тем, 6 проверок фактов</span><span>EUR · UAH · USD</span></div>
+  <h1>Мини-апп для личных финансов: что есть и стоит ли</h1>
+  <p class="lead">Три вопроса: есть ли готовое, стоит ли идти в Telegram Mini App и что можно изучить и позаимствовать. Стек здесь не выбран, это следующий этап.</p>
+</header>
+<div class="verdicts">
+<article class="verdict">
+  <div class="vnum">1</div>
+  <h3>Можно ли переиспользовать готовое?</h3>
+  <p class="vans">Готового приложения под твой случай нет, но готовые движки учёта и Telegram-боты для ввода есть, и их можно взять за основу.</p>
+  <p class="vchg"><span>Что изменит вывод</span>появление готового продукта, который уже импортирует выписки George (личный счёт) и monobank и держит EUR, UAH и USD.</p>
+</article>
+<article class="verdict">
+  <div class="vnum">2</div>
+  <h3>Стоит ли идти в Mini App?</h3>
+  <p class="vans">Да, как эксперимент и для опыта, но как витрину и экран ввода поверх отдельного хранилища, а не как единственное место учёта.</p>
+  <p class="vchg"><span>Что изменит вывод</span>«не стоит», если пробный прототип окажется нестабильным на iPhone (в исследовании этого не проверяли) или ввод через Mini App выйдет медленнее, чем одной фразой в бот.</p>
+</article>
+<article class="verdict">
+  <div class="vnum">3</div>
+  <h3>Что можно изучать?</h3>
+  <p class="vans">Идеи, интерфейсы и модели данных из открытого кода и публичных документов изучать можно, а копировать чужой код без лицензии нельзя; декомпилировать (разбирать программу до кода) чужие приложения можно только ради совместимости.</p>
+  <p class="vchg"><span>Что изменит вывод</span>проверка австрийского закона об авторском праве (UrhG), которую в исследовании не делали.</p>
+</article>
+</div>
+<p class="summary">Похожие проекты есть, но разнесены по частям: движки учёта с API, боты для ввода и Mini App-дашборд поверх Firefly III (miguel-bm, MIT). Ни один найденный продукт не сводит вместе EUR, UAH и USD, счета, активы и импорт твоих банков; поддержку UAH в движках мы не проверяли. Erste возможен через посредника Enable Banking, но личный доступ не проверен. Для monobank есть официальный личный API, для PrivatBank личного API не нашли. Telegram-хранилища слишком малы и не гарантируют сохранность, поэтому учёт должен лежать в движке или базе, которые контролируешь ты.</p>
+<section>
+<h2>Движки учёта готовы, но без Telegram и без твоих банков</h2>
+<p class="rel rel-hi"><strong>Надёжность: высокая.</strong> Данные GitHub и документации API проверены на 31 октября 2026 года; сценарии с валютами проверены не везде.</p>
+<p>Движок учёта - готовая программа, которую ставят на свой сервер. Звёзды GitHub - аналог лайков. Ниже проекты, по которым проверены данные GitHub и документация.</p>
+<div class="tbl"><table><thead><tr><th>Движок</th><th>Что умеет</th><th>Подключение программно</th><th>Лицензия, популярность</th><th>Оговорка</th></tr></thead><tbody>
+<tr><td><a href="https://github.com/firefly-iii/firefly-iii" target="_blank" rel="noopener">Firefly III</a></td><td>счета, бюджеты, валюты</td><td>API; вход по разрешению (OAuth2) или личный токен (ключ доступа)</td><td>AGPL-3.0; 25 045 звёзд</td><td>конвертация по курсам не проверена</td></tr>
+<tr><td><a href="https://github.com/we-promise/sure" target="_blank" rel="noopener">Sure</a></td><td>счета, чистая стоимость, держания и сделки, несколько валют</td><td>API с описанием OpenAPI; ключ или OAuth2</td><td>AGPL-3.0; 10 736 звёзд</td><td>продолжение Maybe Finance</td></tr>
+<tr><td><a href="https://github.com/securo-finance/securo" target="_blank" rel="noopener">Securo</a></td><td>счета, банки через Enable Banking, пересчёт валют</td><td>публичного API нет; вход по логину</td><td>AGPL-3.0; создан в марте 2026</td><td>без ключа курсов суммы в другой валюте считаются по курсу 1:1</td></tr>
+<tr><td><a href="https://github.com/mayswind/ezbookkeeping" target="_blank" rel="noopener">ezBookkeeping</a></td><td>мультивалютность с курсами; импорт Firefly III и Camt.053 (формат банковских выписок)</td><td>API не проверяли</td><td>MIT; 5 893 звёзд</td><td>банковского подключения нет</td></tr>
+<tr><td><a href="https://github.com/actualbudget/actual" target="_blank" rel="noopener">Actual Budget</a></td><td>бюджеты, Enable Banking</td><td>HTTP-API нет, только клиент для Node.js</td><td>MIT; 29 879 звёзд</td><td>нужна своя обёртка</td></tr>
+</tbody></table></div>
+<p>Лицензии: MIT почти ничем не ограничивает; AGPL требует открыть изменённую версию, если её дают по сети, а GPL - если её передают другим людям. Для личного учёта это не важно, для продажи клиентам важно. <a href="https://github.com/maybe-finance/maybe" target="_blank" rel="noopener">Maybe Finance</a> (54 206 звёзд) в архиве с июля 2025 года и не годится за основу.</p>
+<p>У Firefly III описан API (<a href="https://docs.firefly-iii.org/api/" target="_blank" rel="noopener">документация</a>), поэтому он и Sure ближе всего к роли основы; у Sure подтверждены баланс, держания и сделки (<a href="https://github.com/we-promise/sure/tree/main/docs/api" target="_blank" rel="noopener">описание API</a>). Ни в одном проверенном движке нет импорта monobank или PrivatBank: проверены документации Firefly III, Actual и Securo. Готовый монобанк-импортер для Firefly III последний раз обновлялся в январе 2024 года и без лицензии (только читать, не форкать без разрешения автора; форк - своя копия кода) (<a href="https://github.com/mariko357/fireflyiii-monobank-importer" target="_blank" rel="noopener">репозиторий</a>).</p>
+</section><section>
+<h2>Erste через посредника, monobank через свой код, PrivatBank вручную</h2>
+<p class="rel rel-mid"><strong>Надёжность: средняя.</strong> Условия посредника и правила ЕС проверены; доступ к личным счетам George и PrivatBank - нет.</p>
+<p>PSD2 - европейское правило открытого банкинга: банк открывает данные счёта стороннему сервису с согласия клиента. Посредник Enable Banking подключает банки. Его условия от 9 января 2026 года делают панель управления и API бесплатными, а боевой доступ открывают для личного использования. Число подключённых счетов «может быть ограничено» и не опубликовано, бизнес-счета не покрыты (<a href="https://enablebanking.com/terms/" target="_blank" rel="noopener">условия</a>). Erste Bank стоит первой в списке главных австрийских банков, интеграция поддерживается (обновление в журнале изменений за июнь 2026) (<a href="https://enablebanking.com/docs/markets/at/" target="_blank" rel="noopener">Enable Banking AT</a>). Подключение твоего George мы не проверяли: нужен аккаунт в панели Enable Banking. Повторное подтверждение доступа требуется, когда прошло более 180 дней; так устроено правило с 25 июля 2023 года (<a href="https://eur-lex.europa.eu/eli/reg_del/2022/2360/oj" target="_blank" rel="noopener">EUR-Lex</a>). Выгрузка George в CSV, Excel и JSON описана только для George Business (<a href="https://www.sparkasse.at/en/george-help/george-business/transactions-and-search/print-and-export/download---export-your-account-history" target="_blank" rel="noopener">Sparkasse</a>); для личного счёта это не подтверждено.</p>
+<p>GoCardless, другой посредник из открытых проектов, закрыл регистрацию новых аккаунтов; официальное уведомление есть, даты в нём нет (<a href="https://bankaccountdata.gocardless.com/new-signups-disabled" target="_blank" rel="noopener">GoCardless</a>).</p>
+<p>monobank даёт официальный личный API (<a href="https://api.monobank.ua/docs/" target="_blank" rel="noopener">документация</a>). Токен выдают в личном кабинете, выписка отдаётся за период до 31 дня и 1 часа, запросы не чаще раза в 60 секунд. Есть вебхук: сервис сам присылает новые операции. Личный API рассчитан на себя и семью; для сервиса, которым пользуются другие люди, по тексту документации нужен корпоративный доступ.</p>
+<p>PrivatBank: личного API для выписок не нашли; найденные клиенты рассчитаны на бизнес-версию Privat24 (по поиску, не проверено). Рабочий путь - ручная выгрузка из приложения, её формат надо проверить самим. Надёжность по PrivatBank низкая.</p>
+</section><section>
+<h2>Telegram-продукты продают ввод расходов, но не счета и активы</h2>
+<p class="rel rel-mid"><strong>Надёжность: средняя.</strong> Страницы продуктов проверены; выручку называют сами сервисы.</p>
+<div class="tbl"><table><thead><tr><th>Продукт</th><th>Тип</th><th>Цена (как на сайте)</th><th>Что важно</th><th>Сигнал</th></tr></thead><tbody>
+<tr><td>Cointry</td><td>бот</td><td>Free $0; Premium $2.5 в месяц при годовой оплате</td><td>бюджеты, мультивалютность, голос - в Premium; запущен в 2022 (<a href="https://www.producthunt.com/products/cointry" target="_blank" rel="noopener">Product Hunt</a>)</td><td>не показан</td></tr>
+<tr><td>Tabby</td><td>бот + веб</td><td>Free $0; Pro $24.99 в год; 14 дней без карты</td><td>мультивалютность по курсу в Free; к банкам не подключается (<a href="https://tabbyfinance.app" target="_blank" rel="noopener">сайт</a>)</td><td>не показан</td></tr>
+<tr><td>Kopilo</td><td>Mini App</td><td>7 дней бесплатно; платная цена не найдена</td><td>50+ валют, общие бюджеты; один разработчик</td><td>7 подписчиков и 0 отзывов на Product Hunt</td></tr>
+<tr><td>TeleExpense Tracker</td><td>бот + Google Sheets</td><td>не указана</td><td>читает банковские уведомления, банки не названы</td><td>29 активных подписок, MRR $68 (выручка подтверждена Stripe, по <a href="https://trustmrr.com/startup/teleexpense-tracker" target="_blank" rel="noopener">TrustMRR</a>)</td></tr>
+<tr><td>FinNotes</td><td>Mini App</td><td>не указана</td><td>только расходы; экспорт в Excel и Notion</td><td>автор: 30 000-50 000 руб. в месяц (со слов автора)</td></tr>
+</tbody></table></div>
+<p>В найденных продуктах счетов и активов не видно: все они про расходы. Cointry - самый полный по функциям, но бюджеты, мультивалютность и голос у него платные, а запущен он в 2022 году, не в 2026 (<a href="https://www.producthunt.com/products/cointry" target="_blank" rel="noopener">Product Hunt</a>).</p>
+</section><section>
+<h2>Mini App учит Telegram, но не держит деньги</h2>
+<p class="rel rel-mid"><strong>Надёжность: средняя</strong> для платформы (официальные страницы проверены); <strong>низкая</strong> для спроса и карьеры.</p>
+<p>Mini App - веб-страница, которую Telegram открывает внутри себя. Её хранилища маленькие: облачное хранилище держит 1 024 записи по 4 096 символов, на устройстве - 5 МБ, защищённое - 10 записей (<a href="https://core.telegram.org/bots/webapps" target="_blank" rel="noopener">Telegram</a>). Условия разработчика возлагают на тебя безопасное хранение данных и активов, Telegram не гарантирует сохранность облачных данных, а при утрате аккаунта созданные им приложения могут быть закрыты (<a href="https://telegram.org/tos/bot-developers" target="_blank" rel="noopener">условия</a>). Значит, учёт нельзя держать только в Telegram.</p>
+<p>Telegram Serverless (страница обновлена 6 октября 2026 года) - хостинг, где код запускает сам Telegram: Mini App-хостинг, функции на JavaScript и база SQLite (база в одном файле). В документации есть раздел «Building with AI» (<a href="https://core.telegram.org/bots/serverless" target="_blank" rel="noopener">Serverless</a>). Цена, статус бета или открытой версии, место хранения и шифрование не указаны. Условия разработчика пока описывают хостинг на собственных серверах. Внутри Serverless нет библиотек npm (склад готового кода на JavaScript), а в сеть код ходит только через встроенный <code>fetch</code> из SDK (набора инструментов для разработчика). Запросы к API банков технически возможны, но подключение Enable Banking там нужно проверить отдельно.</p>
+<p>Правила меняются часто: версия 10.2 (14 июля 2026) запрещает Mini App вызывать методы из чужих доменов, с 20 июля это включено для всех (<a href="https://core.telegram.org/bots/api-changelog" target="_blank" rel="noopener">changelog</a>). Альтернатива - PWA, сайт на экране телефона; на iPhone он получает уведомления только после установки на экран (<a href="https://webkit.org/blog/13878/web-push-for-web-apps-on-ios-and-ipados/" target="_blank" rel="noopener">WebKit</a>).</p>
+<p>Гибрид уже существует: miguel-bm связывает бота и Mini App-дашборд поверх Firefly III (не запускали, 0 звёзд). Kopilo, Mini App-only учёт одного разработчика, пишет, что баг чёрного экрана в WebKit (движке, который показывает веб-страницы на iPhone) «съел» два дня (<a href="https://www.indiehackers.com/post/building-a-liquid-glass-finance-tracker-for-telegram-solo-dev-xBgVJgRvdITLGUgOrepV" target="_blank" rel="noopener">Indie Hackers</a>). Сроки в кейсах - самоотчёты: агентство заявляет 7 рабочих дней и цену менее 300 000 руб. против от 600 000 руб. у нативного приложения, без базы сравнения (<a href="https://www.sostav.ru/blogs/280723/58933" target="_blank" rel="noopener">Vibes</a>). Adjust: через 30 дней в межотраслевых данных остаётся 7% пользователей, отдельной цифры для финансов нет (<a href="https://www.adjust.com/blog/what-makes-a-good-retention-rate/" target="_blank" rel="noopener">Adjust</a>).</p>
+<p>Украина. Ограничение, принятое в сентябре 2024 года, касается служебных устройств госорганов, военных и критической инфраструктуры (<a href="https://dou.ua/lenta/news/regulation-telegram-in-ukraine/" target="_blank" rel="noopener">DOU</a>). Законопроект 11115 комитет рекомендовал к первому чтению в марте 2026 года; блокировки он не предусматривает (<a href="https://biz.ligazakon.net/news/243127_komitet-vr-odobril-zakonoproekt-o-regulirovanii-telegram-chto-izmenitsya-dlya-polzovateley-i-biznesa" target="_blank" rel="noopener">Ligazakon</a>). Утверждение, что прямой запрет для частных пользователей не предусмотрен, принадлежит депутату, главе комитета Рады, а не правительству (<a href="https://mezha.net/eng/news/ukraine_will_not/" target="_blank" rel="noopener">Mezha</a>). Для личного приложения риск низкий, но служебный телефон может попасть под ограничение.</p>
+<p>Карьера и продажи: подтверждённого спроса мы не нашли. Есть только вендорские цены: фриланс-разработка Mini App от $2 000 до $15 000, без методики (<a href="https://cyberpanel.net/blog/how-to-hire-telegram-mini-app-developers-in-2025" target="_blank" rel="noopener">CyberPanel</a>). Данных о спросе малого бизнеса на Mini App или AI-автоматизацию в Австрии, ЕС и Украине нет. Mini App учит в основном особенностям Telegram; связка бота, таблицы или базы и ИИ-агента ближе к процессам, которые можно продавать. Это вывод из источников, уверенность средняя.</p>
+</section><section>
+<h2>Идеи изучать можно, чужой код без лицензии - нет</h2>
+<p class="rel rel-hi"><strong>Надёжность: высокая</strong> для правовых норм (тексты ЕС проверены); <strong>средняя</strong> для описаний репозиториев.</p>
+<div class="tbl"><table><thead><tr><th>Проект</th><th>Что изучать</th><th>Лицензия</th><th>Как использовать</th></tr></thead><tbody>
+<tr><td><a href="https://github.com/miguel-bm/firefly-iii-telegram-bot" target="_blank" rel="noopener">miguel-bm/firefly-iii-telegram-bot</a></td><td>ввод фразой и голосом; Mini App-дашборд</td><td>MIT</td><td>можно форкать; 0 звёзд, не запускали</td></tr>
+<tr><td><a href="https://github.com/ilramdhan/dompetku" target="_blank" rel="noopener">ilramdhan/dompetku</a></td><td>чистая стоимость, счета, учёт чеков по фото через ИИ</td><td>MIT</td><td>можно форкать; валюты IDR и USD, не Mini App</td></tr>
+<tr><td><a href="https://github.com/cyxou/firefly-iii-telegram-bot" target="_blank" rel="noopener">cyxou/firefly-iii-telegram-bot</a></td><td>полный набор команд к Firefly III; файлы правил для ИИ-агентов</td><td>GPL-3.0</td><td>70 звёзд; голосового ввода нет; производные работы - под GPL</td></tr>
+<tr><td><a href="https://github.com/bbharathbala/actual-budget-telegram-bot" target="_blank" rel="noopener">bbharathbala/actual-budget-telegram-bot</a></td><td>учёт чеков без языковых моделей</td><td>MIT</td><td>можно форкать; 18 звёзд</td></tr>
+<tr><td><a href="https://github.com/xetus476/sofiy_qwen" target="_blank" rel="noopener">sofiy_qwen</a>; <a href="https://github.com/KidCoderT/beancounter" target="_blank" rel="noopener">KidCoderT/beancounter</a>; <a href="https://github.com/AdoniasMulugeta/quicktrack-expenses-mini-app" target="_blank" rel="noopener">quicktrack-expenses-mini-app</a></td><td>экраны бюджета и аналитики; Mini App по адресу /app (только просмотр); простой Mini App без фреймворка</td><td>нет</td><td>только читать, не форкать без разрешения автора</td></tr>
+<tr><td>ZenMoney</td><td>модель данных: валюта, банк, счёт, категория, получатель; синхронизация по изменениям</td><td>коммерческое</td><td>идеи, без кода; 199 руб. в месяц, 1 490 руб. в год</td></tr>
+<tr><td>YNAB, Copilot, Monarch, Kubera</td><td>UX и сценарии чистой стоимости; API YNAB: 200 запросов в час на токен</td><td>коммерческие</td><td>пользоваться как клиент; ориентир: YNAB и Copilot $109 в год, Monarch Core $99.99 в год</td></tr>
+</tbody></table></div>
+<p>Директива ЕС 2009/24/EC разрешает изучать работу программы, пока ты её законно используешь (ст. 5(3)). Идеи и принципы, в том числе лежащие в основе интерфейсов, не защищены (ст. 1(2)). Декомпилировать код можно только ради совместимости (ст. 6), и договор не может этого отменить (ст. 8) (<a href="https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX:32009L0024" target="_blank" rel="noopener">EUR-Lex</a>). Значит, изучаешь поведение, структуру и модели данных, но не копируешь тексты, иконки, код и наборы данных. Скрипты, которые входят в банк по логину и паролю, не берём: это риск и по условиям банка, и по безопасности.</p>
+</section><section>
+<h2>Что это меняет</h2>
+<p>Главный сдвиг: нужна сборка из уже существующих частей (движок учёта, бот для ввода, витрина, посредник для банка), а не одна готовая вещь. Учебная польза Mini App - в навыке соединять эти части, а не в интерфейсе. Самое неясное место - банки: Erste возможен через посредника с ограничениями, monobank требует собственного кода, PrivatBank - ручной выгрузки.</p>
+<p class="rel rel-mid"><strong>Надёжность: средняя.</strong> Выводы опираются на проверенные факты; вывод о карьерной ценности - инференция из источников.</p>
+</section><section>
+<h2>Что взять на этап выбора стека</h2>
+<p class="rel rel-mid"><strong>Надёжность: средняя.</strong> Пункты взяты из разделов выше; ни один вариант здесь не выбран.</p>
+<ol start="1">
+<li>Где лежит учёт: готовый движок (Firefly III, Sure, Securo, ezBookkeeping), собственная база или Telegram Serverless. Решают хранение, выгрузка и условия Telegram.</li>
+<li>Статус Telegram Serverless: бета или открытая версия, цена, место хранения и шифрование. Спросить у Telegram или проверить в настройках BotFather.</li>
+<li>Erste: личный доступ через Enable Banking на твоём George; лимит счетов не опубликован, подтверждение нужно раз в 180 дней.</li>
+<li>George: API через посредника или ручная выгрузка CSV.</li>
+<li>monobank: собственный импортёр через личный API (1 запрос в минуту, до 31 дня за запрос) или через вебхук.</li>
+<li>PrivatBank: ручная выгрузка из Privat24 (формат проверить) или ввод вручную.</li>
+<li>Ввод: только бот или бот плюс Mini App-дашборд.</li>
+<li>Валюты: как считать EUR, UAH и USD. Securo без ключа курсов даёт курс 1:1; у Firefly III конвертация не проверена.</li>
+<li>Лицензии: AGPL у Firefly III, Sure и Securo - проверить до продажи клиентам.</li>
+<li>Конфиденциальность: условия требуют политику конфиденциальности в @BotFather даже для Mini App; применимость GDPR к личному приложению не проверяли.</li>
+<li>SDK (набор инструментов для разработчика) Mini App: @tma.js актуален, четыре пакета @telegram-apps помечены как устаревшие.</li>
+</ol>
+</section><section class="appendix">
+<h2>Приложение. Источники, ограничения и что не проверено</h2>
+<p class="rel rel-mid"><strong>Надёжность приложения:</strong> официальные страницы Telegram, EUR-Lex и данные GitHub - высокая; цены и выручка со слов сервисов - средняя. Утверждения, которые нашли только в поисковой выдаче, в отчёт как факты не вошли.</p>
+<h3>Источники</h3>
+<p class="group">Telegram и условия:</p>
+<ol start="1">
+<li><a href="https://core.telegram.org/bots/webapps" target="_blank" rel="noopener">https://core.telegram.org/bots/webapps</a></li>
+<li><a href="https://core.telegram.org/bots/api-changelog" target="_blank" rel="noopener">https://core.telegram.org/bots/api-changelog</a></li>
+<li><a href="https://core.telegram.org/bots/serverless" target="_blank" rel="noopener">https://core.telegram.org/bots/serverless</a></li>
+<li><a href="https://telegram.org/tos/bot-developers" target="_blank" rel="noopener">https://telegram.org/tos/bot-developers</a></li>
+<li><a href="https://webkit.org/blog/13878/web-push-for-web-apps-on-ios-and-ipados/" target="_blank" rel="noopener">https://webkit.org/blog/13878/web-push-for-web-apps-on-ios-and-ipados/</a></li>
+</ol>
+<p class="group">Право и банки:</p>
+<ol start="6">
+<li><a href="https://eur-lex.europa.eu/eli/reg_del/2022/2360/oj" target="_blank" rel="noopener">https://eur-lex.europa.eu/eli/reg_del/2022/2360/oj</a></li>
+<li><a href="https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX:32009L0024" target="_blank" rel="noopener">https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX:32009L0024</a></li>
+<li><a href="https://enablebanking.com/terms/" target="_blank" rel="noopener">https://enablebanking.com/terms/</a></li>
+<li><a href="https://enablebanking.com/docs/markets/at/" target="_blank" rel="noopener">https://enablebanking.com/docs/markets/at/</a></li>
+<li><a href="https://github.com/actualbudget/actual" target="_blank" rel="noopener">https://github.com/actualbudget/actual</a></li>
+<li><a href="https://bankaccountdata.gocardless.com/new-signups-disabled" target="_blank" rel="noopener">https://bankaccountdata.gocardless.com/new-signups-disabled</a></li>
+<li><a href="https://www.sparkasse.at/en/george-help/george-business/transactions-and-search/print-and-export/download---export-your-account-history" target="_blank" rel="noopener">https://www.sparkasse.at/en/george-help/george-business/transactions-and-search/print-and-export/download---export-your-account-history</a></li>
+<li><a href="https://api.monobank.ua/docs/" target="_blank" rel="noopener">https://api.monobank.ua/docs/</a></li>
+</ol>
+<p class="group">Движки и открытый код:</p>
+<ol start="14">
+<li><a href="https://docs.firefly-iii.org/api/" target="_blank" rel="noopener">https://docs.firefly-iii.org/api/</a></li>
+<li><a href="https://github.com/firefly-iii/firefly-iii" target="_blank" rel="noopener">https://github.com/firefly-iii/firefly-iii</a></li>
+<li><a href="https://github.com/we-promise/sure" target="_blank" rel="noopener">https://github.com/we-promise/sure</a></li>
+<li><a href="https://github.com/we-promise/sure/tree/main/docs/api" target="_blank" rel="noopener">https://github.com/we-promise/sure/tree/main/docs/api</a></li>
+<li><a href="https://github.com/securo-finance/securo" target="_blank" rel="noopener">https://github.com/securo-finance/securo</a></li>
+<li><a href="https://github.com/mayswind/ezbookkeeping" target="_blank" rel="noopener">https://github.com/mayswind/ezbookkeeping</a></li>
+<li><a href="https://actualbudget.org/docs/api/" target="_blank" rel="noopener">https://actualbudget.org/docs/api/</a></li>
+<li><a href="https://github.com/maybe-finance/maybe" target="_blank" rel="noopener">https://github.com/maybe-finance/maybe</a></li>
+<li><a href="https://github.com/mariko357/fireflyiii-monobank-importer" target="_blank" rel="noopener">https://github.com/mariko357/fireflyiii-monobank-importer</a></li>
+<li><a href="https://github.com/miguel-bm/firefly-iii-telegram-bot" target="_blank" rel="noopener">https://github.com/miguel-bm/firefly-iii-telegram-bot</a></li>
+<li><a href="https://github.com/ilramdhan/dompetku" target="_blank" rel="noopener">https://github.com/ilramdhan/dompetku</a></li>
+<li><a href="https://github.com/cyxou/firefly-iii-telegram-bot" target="_blank" rel="noopener">https://github.com/cyxou/firefly-iii-telegram-bot</a></li>
+<li><a href="https://github.com/bbharathbala/actual-budget-telegram-bot" target="_blank" rel="noopener">https://github.com/bbharathbala/actual-budget-telegram-bot</a></li>
+<li><a href="https://github.com/xetus476/sofiy_qwen" target="_blank" rel="noopener">https://github.com/xetus476/sofiy_qwen</a></li>
+<li><a href="https://github.com/KidCoderT/beancounter" target="_blank" rel="noopener">https://github.com/KidCoderT/beancounter</a></li>
+<li><a href="https://github.com/AdoniasMulugeta/quicktrack-expenses-mini-app" target="_blank" rel="noopener">https://github.com/AdoniasMulugeta/quicktrack-expenses-mini-app</a></li>
+<li><a href="https://www.npmjs.com/package/@tma.js/sdk" target="_blank" rel="noopener">https://www.npmjs.com/package/@tma.js/sdk</a></li>
+<li><a href="https://www.npmjs.com/package/@telegram-apps/bridge" target="_blank" rel="noopener">https://www.npmjs.com/package/@telegram-apps/bridge</a></li>
+</ol>
+<p class="group">Продукты и рынок:</p>
+<ol start="32">
+<li><a href="https://cointry.io" target="_blank" rel="noopener">https://cointry.io</a></li>
+<li><a href="https://www.producthunt.com/products/cointry" target="_blank" rel="noopener">https://www.producthunt.com/products/cointry</a></li>
+<li><a href="https://tabbyfinance.app" target="_blank" rel="noopener">https://tabbyfinance.app</a></li>
+<li><a href="https://www.producthunt.com/products/kopilo" target="_blank" rel="noopener">https://www.producthunt.com/products/kopilo</a></li>
+<li><a href="https://trustmrr.com/startup/teleexpense-tracker" target="_blank" rel="noopener">https://trustmrr.com/startup/teleexpense-tracker</a></li>
+<li><a href="https://t-j.ru/we-started-telegram-mini-app-for-financial-accounting/" target="_blank" rel="noopener">https://t-j.ru/we-started-telegram-mini-app-for-financial-accounting/</a></li>
+<li><a href="https://www.indiehackers.com/post/building-a-liquid-glass-finance-tracker-for-telegram-solo-dev-xBgVJgRvdITLGUgOrepV" target="_blank" rel="noopener">https://www.indiehackers.com/post/building-a-liquid-glass-finance-tracker-for-telegram-solo-dev-xBgVJgRvdITLGUgOrepV</a></li>
+<li><a href="https://hackernoon.com/building-a-business-app-on-telegram-4-lessons-we-learned-the-hard-way" target="_blank" rel="noopener">https://hackernoon.com/building-a-business-app-on-telegram-4-lessons-we-learned-the-hard-way</a></li>
+<li><a href="https://www.sostav.ru/blogs/280723/58933" target="_blank" rel="noopener">https://www.sostav.ru/blogs/280723/58933</a></li>
+<li><a href="https://cyberpanel.net/blog/how-to-hire-telegram-mini-app-developers-in-2025" target="_blank" rel="noopener">https://cyberpanel.net/blog/how-to-hire-telegram-mini-app-developers-in-2025</a></li>
+<li><a href="https://www.adjust.com/blog/what-makes-a-good-retention-rate/" target="_blank" rel="noopener">https://www.adjust.com/blog/what-makes-a-good-retention-rate/</a></li>
+<li><a href="https://dou.ua/lenta/news/regulation-telegram-in-ukraine/" target="_blank" rel="noopener">https://dou.ua/lenta/news/regulation-telegram-in-ukraine/</a></li>
+<li><a href="https://biz.ligazakon.net/news/243127_komitet-vr-odobril-zakonoproekt-o-regulirovanii-telegram-chto-izmenitsya-dlya-polzovateley-i-biznesa" target="_blank" rel="noopener">https://biz.ligazakon.net/news/243127_komitet-vr-odobril-zakonoproekt-o-regulirovanii-telegram-chto-izmenitsya-dlya-polzovateley-i-biznesa</a></li>
+<li><a href="https://mezha.net/eng/news/ukraine_will_not/" target="_blank" rel="noopener">https://mezha.net/eng/news/ukraine_will_not/</a></li>
+</ol>
+<p class="group">Коммерческие приложения:</p>
+<ol start="46">
+<li><a href="https://www.ynab.com/pricing" target="_blank" rel="noopener">https://www.ynab.com/pricing</a></li>
+<li><a href="https://api.ynab.com/" target="_blank" rel="noopener">https://api.ynab.com/</a></li>
+<li><a href="https://www.copilot.money/pricing" target="_blank" rel="noopener">https://www.copilot.money/pricing</a></li>
+<li><a href="https://www.monarch.com/pricing" target="_blank" rel="noopener">https://www.monarch.com/pricing</a></li>
+<li><a href="https://kubera.com/" target="_blank" rel="noopener">https://kubera.com/</a></li>
+<li><a href="https://zenmoney.ru/a/" target="_blank" rel="noopener">https://zenmoney.ru/a/</a></li>
+</ol>
+<h3>Не подтверждено или не проверено</h3>
+<ul>
+<li>Статус, цена, место хранения и шифрование Telegram Serverless: на странице их нет; сообщения о раннем доступе из поиска не подтверждены.</li>
+<li>Личный доступ к счёту Erste через Enable Banking, лимит счетов, личный экспорт George.</li>
+<li>Выписки PrivatBank и личный API PrivatBank: только поиск, страницы не открывались.</li>
+<li>Дата закрытия GoCardless «июль 2025»: указана только в документации Actual.</li>
+<li>Cointry: в бесплатном тарифе написано «поддержка любой валюты», но конвертация в бесплатном тарифе не подтверждена.</li>
+<li>Поддержка UAH и конвертация курсов в Firefly III и Sure; API Securo и ezBookkeeping.</li>
+<li>Работа miguel-bm, dompetku и cyxou: описания и README прочитаны, код не запускали.</li>
+<li>Австрийский закон UrhG, GDPR для личных финансов, налоговые вопросы.</li>
+<li>Рейтинги в Google Play не собирались.</li>
+</ul>
+<h3>Ограничения</h3>
+<ul>
+<li>Аккаунты в банках и сервисах не создавали, ничего не запускали и не клонировали. Данные GitHub и тарифов актуальны на 31 октября 2026 года.</li>
+<li>Два репозитория из первичных заметок отвечают 404, в отчёт они не вошли.</li>
+<li>В одном поисковом сниппете страницы документации Monobank был текст, адресованный ИИ-инструментам; на самой странице такого текста не нашли, и инструкции из него не выполнялись.</li>
+<li>Значения взяты после проверки всех шести файлов заметок: исправленные значения стоят вместо прежних, неподтверждённые убраны или помечены «не подтверждено».</li>
+</ul>
+</section>
+</div>

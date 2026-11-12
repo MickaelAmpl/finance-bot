@@ -1,0 +1,25 @@
+# secrets and runtime data never enter git
+.env
+.env.*
+!.env.example
+app/.env
+*.key
+secrets/
+*.db
+*.db-wal
+*.db-shm
+*.sqlite
+*.sqlite3
+*.csv
+app/data/
+data/
+
+# python
+.venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+.ruff_cache/
+
+# macOS
+.DS_Store

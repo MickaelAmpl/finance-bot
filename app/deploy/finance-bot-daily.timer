@@ -1,0 +1,10 @@
+[Unit]
+Description=Run the finance bot daily job at 09:00 Vienna time
+
+[Timer]
+OnCalendar=*-*-* 09:00:00 Europe/Vienna
+Persistent=true
+Unit=finance-bot-daily.service
+
+[Install]
+WantedBy=timers.target

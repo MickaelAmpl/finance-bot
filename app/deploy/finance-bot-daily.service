@@ -1,0 +1,11 @@
+[Unit]
+Description=Finance bot daily job (backup, monthly summary)
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+UMask=0077
+Type=oneshot
+WorkingDirectory=/opt/finance-bot
+EnvironmentFile=/opt/finance-bot/.env
+ExecStart=/opt/finance-bot/.venv/bin/python -m finbot.jobs daily

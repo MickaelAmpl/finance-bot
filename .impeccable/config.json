@@ -1,0 +1,26 @@
+{
+  "detector": {
+    "ignoreRules": [],
+    "ignoreFiles": [],
+    "ignoreValues": [
+      {
+        "rule": "low-contrast",
+        "value": "*",
+        "files": [
+          "stages/03_plan/output/roadmap-2026-10-31.html"
+        ],
+        "createdAt": "2026-10-31T17:39:26.761Z",
+        "reason": "Claude 31.10: detector pairs dark-theme tokens with light backgrounds (and default black with dark surfaces); each theme's real pairs computed at 5.2:1 or higher"
+      },
+      {
+        "rule": "cramped-padding",
+        "value": "*",
+        "files": [
+          "stages/03_plan/output/roadmap-2026-10-31.html"
+        ],
+        "createdAt": "2026-10-31T17:40:38.928Z",
+        "reason": "Claude 31.10: only hit is .tbl, a table wrapper whose th/td carry 10px 12px padding, so text is inset"
+      }
+    ]
+  }
+}
